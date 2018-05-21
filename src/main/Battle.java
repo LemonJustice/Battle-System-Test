@@ -1,15 +1,28 @@
 package main;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.image.BufferStrategy;
+
+import display.Assets;
 import display.Display;
 import main.KeyManager;
+import scene.Menuing;
 
 public class Battle implements Runnable {
 	Thread thread;
-	KeyManager keyManager;
+	public KeyManager keyManager;
+	Display display;
+	Menuing menuing;
+	Assets assets;
+	
 	boolean running;
 	private int width;
 	private int height;
 	private String title;
+	private Graphics g;
+	private Graphics2D g2d;
+	private BufferStrategy buffer;
 
 	public Battle(String string, int i, int j) {
 		this.width = i;
@@ -19,13 +32,28 @@ public class Battle implements Runnable {
 	
 	private void init() {
 		keyManager = new KeyManager();
-		Display display = new Display(title, width, height);
+		display = new Display(title, width, height);
 		display.getFrame().addKeyListener(keyManager);
+		assets = new Assets();
+		assets.init();
+		menuing = new Menuing(this);
 		
 	}
 	
 	private void render() {
-		// TODO Auto-generated method stub
+		buffer = display.getCanvas().getBufferStrategy();
+		if(buffer == null){
+			display.getCanvas().createBufferStrategy(3);
+			return;
+		}
+		g = buffer.getDrawGraphics();
+		g2d = (Graphics2D)g;
+		g.clearRect(0, 0, width, height);
+		//start calling those renders
+		menuing.render(g, g2d);
+		//thats too much maybe
+		buffer.show();
+		g.dispose();
 		
 	}
 
